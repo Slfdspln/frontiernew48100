@@ -62,7 +62,7 @@ function generateProductionSecurityHash(passData) {
 /**
  * Generate comprehensive QR data with enterprise security
  */
-function generateEnterpriseQRData(pass, resident, securityData) {
+async function generateEnterpriseQRData(pass, resident, securityData) {
   return {
     // Core identification
     passId: pass.id,

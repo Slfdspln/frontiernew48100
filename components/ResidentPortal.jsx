@@ -26,19 +26,19 @@ export default function ResidentPortal() {
   if (!status.isResident) return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center">
       <div className="text-center space-y-4 max-w-md mx-auto px-6">
-        <div className="text-red-400 text-lg">⚠️ Not Verified as Resident</div>
+        <div className="text-blue-400 text-lg">🔐 Login Required</div>
         <p className="text-gray-300">
-          Your account is not verified as a building resident. Please contact building management.
+          You must log in to access the resident portal.
         </p>
         <div className="space-y-2">
           <button 
-            onClick={() => window.location.reload()}
+            onClick={() => window.location.href = '/resident/login'}
             className="block mx-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
           >
-            Retry Verification
+            Go to Login
           </button>
           <p className="text-sm text-gray-400">
-            Or email: <a href="mailto:admin@frontiertower.com" className="text-blue-400 hover:underline">admin@frontiertower.com</a>
+            Regular credentials work for now. Admin login will be added later.
           </p>
         </div>
       </div>
