@@ -1,0 +1,117 @@
+import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
+import Stripe from 'stripe';
+import { getSupa } from '@/utils/supabaseAdmin';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+export async function POST(request) {
+  const body = await request.text();
+  const headersList = await headers();
+  const signature = headersList.get('stripe-signature');
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(body, signature, endpointSecret);
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err.message);
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+  }
+
+  const supa = getSupa();
+
+  try {
+    switch (event.type) {
+      case 'identity.verification_session.verified':
+        await handleVerificationVerified(event.data.object, supa);
+        break;
+      case 'identity.verification_session.requires_input':
+        await handleVerificationRequiresInput(event.data.object, supa);
+        break;
+      case 'identity.verification_session.canceled':
+        await handleVerificationCanceled(event.data.object, supa);
+        break;
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
+
+    return NextResponse.json({ received: true });
+  } catch (error) {
+    console.error('Webhook handler error:', error);
+    return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 });
+  }
+}
+
+async function handleVerificationVerified(session, supa) {
+  const { guest_pass_id, host_id, guest_email } = session.metadata;
+
+  console.log('Identity verification verified for guest pass:', guest_pass_id);
+
+  // Update guest pass status to approved
+  const { data: guestPass, error } = await supa
+    .from('guest_passes')
+    .update({
+      status: 'approved',
+      extended_data: {
+        ...session.metadata,
+        verificationStatus: 'verified',
+        verificationId: session.id,
+        verifiedAt: new Date().toISOString()
+      }
+    })
+    .eq('id', guest_pass_id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating guest pass after verification:', error);
+    return;
+  }
+
+  console.log('Guest pass approved and ready for Apple Wallet generation:', guest_pass_id);
+
+  // TODO: Trigger Apple Wallet pass generation
+  // This could be done here or via a separate API call from the frontend
+}
+
+async function handleVerificationRequiresInput(session, supa) {
+  const { guest_pass_id } = session.metadata;
+
+  await supa
+    .from('guest_passes')
+    .update({
+      status: 'verification_failed',
+      extended_data: {
+        ...session.metadata,
+        verificationStatus: 'requires_input',
+        verificationId: session.id,
+        failedAt: new Date().toISOString()
+      }
+    })
+    .eq('id', guest_pass_id);
+
+  console.log('Identity verification requires input for guest pass:', guest_pass_id);
+}
+
+async function handleVerificationCanceled(session, supa) {
+  const { guest_pass_id } = session.metadata;
+
+  await supa
+    .from('guest_passes')
+    .update({
+      status: 'verification_canceled',
+      extended_data: {
+        ...session.metadata,
+        verificationStatus: 'canceled',
+        verificationId: session.id,
+        canceledAt: new Date().toISOString()
+      }
+    })
+    .eq('id', guest_pass_id);
+
+  console.log('Identity verification canceled for guest pass:', guest_pass_id);
+}
+
+export const dynamic = 'force-dynamic';
