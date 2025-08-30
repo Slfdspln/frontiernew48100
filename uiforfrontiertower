@@ -1,0 +1,190 @@
+Frontier Tower UI/UX Design Guide for Guest Pass Form
+🎨 PRIMARY COLORS & THEME
+Main Brand Purple
+
+Primary Purple: rgb(118, 74, 226) or #764AE2
+Secondary Purple: rgb(131, 111, 182) or #836FB6
+This is their signature purple used for primary buttons and brand elements
+
+Background Colors
+
+Main Background: rgb(255, 255, 255) (white)
+Section Backgrounds: rgb(17, 17, 17) (dark sections)
+Card/Container Backgrounds: rgb(25, 25, 26) (dark containers)
+Input Backgrounds: rgb(238, 238, 238) (light gray)
+
+Text Colors
+
+Primary Text: rgb(23, 23, 23) (near black)
+Secondary Text: rgb(102, 102, 102) (medium gray)
+Muted Text: rgb(136, 136, 136) (light gray)
+White Text: rgb(255, 255, 255) (on dark backgrounds)
+
+📝 TYPOGRAPHY
+Primary Font Family
+cssfont-family: "Plus Jakarta Sans", "Plus Jakarta Sans Fallback"
+Secondary Font
+cssfont-family: "Outfit", "Outfit Fallback"
+Font Sizes
+
+Large Headers: 56px, 48px
+Medium Headers: 36px, 32px
+Sub Headers: 24px, 22px
+Body Text: 16px (base size)
+Small Text: 14px, 12px
+Button Text: 14px with font-weight: 600
+
+🔘 BUTTON STYLES
+Primary Button (Purple CTA)
+cssbackground-color: rgb(118, 74, 226);
+color: rgb(255, 255, 255);
+padding: 10px 12px;
+border-radius: 12px;
+border: 1px solid rgb(235, 229, 251);
+font-size: 14px;
+font-weight: 600;
+font-family: "Plus Jakarta Sans", "Plus Jakarta Sans Fallback";
+height: 42px;
+cursor: pointer;
+box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px;
+transition: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+Secondary Button (Outline/Ghost)
+cssbackground-color: transparent;
+color: rgb(118, 74, 226);
+border: 1px solid rgb(118, 74, 226);
+padding: 10px 12px;
+border-radius: 12px;
+font-size: 14px;
+font-weight: 600;
+📋 INPUT FIELD STYLES
+Text Input Fields
+cssbackground-color: rgb(238, 238, 238);
+color: rgb(0, 0, 0);
+border: 1px solid rgb(255, 255, 255);
+border-radius: 9999px; /* Fully rounded pills */
+font-size: 14px;
+font-family: "Plus Jakarta Sans", "Plus Jakarta Sans Fallback";
+height: 45px;
+padding: 0 16px;
+box-shadow: none;
+Focus States
+
+Add subtle purple border: border-color: rgb(118, 74, 226)
+Add purple box-shadow: box-shadow: 0 0 0 3px rgba(118, 74, 226, 0.1)
+
+📦 CONTAINER & CARD STYLES
+Main Form Container
+cssbackground-color: rgb(255, 255, 255);
+border-radius: 24px;
+box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px;
+padding: 32px;
+max-width: 600px;
+margin: 0 auto;
+Section Dividers
+cssborder-radius: 18px;
+background-color: rgb(25, 25, 26); /* For dark sections */
+padding: 24px;
+margin: 16px 0;
+🏷️ FORM LABELS & STRUCTURE
+Form Labels
+cssfont-size: 14px;
+font-weight: 600;
+color: rgb(23, 23, 23);
+margin-bottom: 8px;
+font-family: "Plus Jakarta Sans", "Plus Jakarta Sans Fallback";
+Form Groups
+
+Spacing between form elements: margin-bottom: 20px
+Label to input spacing: margin-bottom: 8px
+
+🎯 SPACING & LAYOUT
+Standard Spacing Scale
+
+Extra Large: 48px
+Large: 32px
+Medium: 24px
+Small: 16px
+Extra Small: 12px, 8px
+
+Border Radius Scale
+
+Full Rounded: 9999px (pills)
+Large: 24px
+Medium: 18px, 12px
+Small: 2px
+
+✨ SPECIAL EFFECTS & INTERACTIONS
+Box Shadows
+
+Elevated Cards: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px
+Subtle Cards: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px
+Buttons: Same as elevated cards
+
+Hover States
+
+Buttons: Darken purple by 10% rgb(106, 66, 203)
+Subtle scale: transform: scale(1.02)
+Smooth transitions: transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1)
+
+📱 RESPONSIVE BEHAVIOR
+Mobile Breakpoints
+
+Desktop: 1200px+
+Tablet: 768px - 1199px
+Mobile: < 768px
+
+Mobile Adjustments
+
+Reduce padding on containers from 32px to 20px
+Stack form elements vertically with 100% width
+Adjust font sizes down by 2-4px
+Reduce button heights from 42px to 38px
+
+🔍 FORM SPECIFIC GUIDELINES
+Guest Pass Form Structure
+
+Header Section: Clean white background with purple accent
+Form Container: White card with shadow, rounded corners
+Input Fields: Pill-shaped with light gray backgrounds
+Submit Button: Purple CTA button, full width on mobile
+Supporting Text: Medium gray color for instructions
+
+Validation States
+
+Error: Red border rgb(239, 68, 68), red text
+Success: Green border rgb(34, 197, 94), green text
+Focus: Purple border and subtle shadow
+
+Loading States
+
+Purple spinner or skeleton loading
+Disable buttons with reduced opacity 0.6
+
+🎨 OVERALL DESIGN PHILOSOPHY
+Key Characteristics
+
+Modern & Clean: Lots of white space, minimal clutter
+Tech-Forward: Sharp corners mixed with rounded elements
+Professional: Sophisticated color palette
+Accessible: Good contrast ratios, readable fonts
+Consistent: Unified spacing and component patterns
+
+Inspiration Keywords
+
+Startup/Tech aesthetic
+Premium SaaS application
+Modern co-working space branding
+Silicon Valley sophistication
+Community-focused design
+
+💡 IMPLEMENTATION NOTES
+
+Always use the exact purple color rgb(118, 74, 226) for primary actions
+Maintain the pill-shaped input aesthetic with border-radius: 9999px
+Use proper font weights - 600 for buttons/labels, 400 for body text
+Include hover and focus states for all interactive elements
+Test on mobile - their design is mobile-first responsive
+Use consistent box shadows for depth and hierarchy
+Keep generous spacing between elements for breathing room
+
+This guide captures the exact visual DNA of Frontier Tower's website. Use these specifications to create a guest pass form that seamlessly integrates with their brand aesthetic!

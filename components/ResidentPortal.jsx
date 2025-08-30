@@ -10,9 +10,17 @@ export default function ResidentPortal() {
     (async () => {
       try {
         const r = await fetch('/api/auth/reverify', { method: 'POST' });
-        setStatus({ loading: false, isResident: r.ok ? (await r.json()).isResident : null });
-      } catch {
-        setStatus({ loading: false, isResident: null });
+        if (r.ok) {
+          const data = await r.json();
+          console.log('Auth check result:', data); // Debug log
+          setStatus({ loading: false, isResident: data.isResident || data.ok });
+        } else {
+          console.log('Auth check failed:', r.status); // Debug log
+          setStatus({ loading: false, isResident: false });
+        }
+      } catch (error) {
+        console.log('Auth check error:', error); // Debug log
+        setStatus({ loading: false, isResident: false });
       }
     })();
   }, []);

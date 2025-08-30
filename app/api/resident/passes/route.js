@@ -17,11 +17,8 @@ export async function GET(req) {
 
     const { data: passes, error } = await supa
       .from('guest_passes')
-      .select(`
-        *,
-        guests(id, first_name, last_name, email, phone)
-      `)
-      .eq('host_id', session.residentId)
+      .select('*')
+      .eq('resident_id', session.residentId)
       .order('created_at', { ascending: false });
 
     if (error) {

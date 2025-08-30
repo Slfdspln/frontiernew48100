@@ -166,7 +166,7 @@ export async function POST(req) {
           is_resident: true,
           verified_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
-        });
+        }, { onConflict: 'resident_id' });
 
       if (authError) {
         console.error('Failed to update resident auth:', authError);
