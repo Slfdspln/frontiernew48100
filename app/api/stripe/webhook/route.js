@@ -3,7 +3,18 @@ import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { getSupa } from '@/utils/supabaseAdmin';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// Initialize Stripe only when needed to avoid build errors
+let stripe;
+const getStripe = () => {
+  if (!stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY environment variable is required');
+    }
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  }
+  return stripe;
+};
+
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 export async function POST(request) {
@@ -14,7 +25,8 @@ export async function POST(request) {
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(body, signature, endpointSecret);
+    const stripeInstance = getStripe();
+    event = stripeInstance.webhooks.constructEvent(body, signature, endpointSecret);
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message);
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });

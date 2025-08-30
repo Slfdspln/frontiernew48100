@@ -10,7 +10,17 @@ import Stripe from 'stripe';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// Initialize Stripe only when needed to avoid build errors
+let stripe;
+const getStripe = () => {
+  if (!stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY environment variable is required');
+    }
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  }
+  return stripe;
+};
 
 const CompleteBody = z.object({
   token: z.string(),
@@ -114,7 +124,8 @@ export async function POST(req) {
     }
 
     // Create Stripe Identity verification session
-    const verificationSession = await stripe.identity.verificationSessions.create({
+    const stripeInstance = getStripe();
+    const verificationSession = await stripeInstance.identity.verificationSessions.create({
       type: 'document',
       metadata: {
         guest_pass_id: passId,
