@@ -78,6 +78,7 @@ function GuestVerifyContent() {
       });
 
       const result = await response.json();
+      console.log('Verification API response:', result);
       
       if (result.ok && result.verification_url) {
         setMsg('Redirecting to ID verification...');
@@ -86,9 +87,11 @@ function GuestVerifyContent() {
           window.location.href = result.verification_url;
         }, 1500);
       } else {
+        console.error('Verification failed:', result);
         setMsg(result.error || 'Failed to start verification');
       }
     } catch (error) {
+      console.error('Network error:', error);
       setMsg('Network error. Please try again.');
     }
     
