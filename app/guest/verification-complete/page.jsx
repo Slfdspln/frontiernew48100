@@ -100,21 +100,26 @@ function VerificationCompleteContent() {
           <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto"></div>
         )}
 
-        {status === 'approved' && walletUrl && (
+        {status === 'approved' && (
           <div className="space-y-4">
             <p className="text-green-400">
               🎉 Your identity has been verified! Your guest pass is ready.
             </p>
             
-            <a 
-              href={walletUrl}
-              className="inline-block w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg"
-            >
-              📱 Add to Apple Wallet
-            </a>
+            {walletUrl && (
+              <a 
+                href={walletUrl}
+                className="inline-block w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg"
+              >
+                📱 Add to Apple Wallet
+              </a>
+            )}
             
             <p className="text-sm text-gray-400">
-              Your pass will be available in your Apple Wallet for easy access during your visit.
+              {walletUrl 
+                ? "Your pass will be available in your Apple Wallet for easy access during your visit."
+                : "Your Apple Wallet pass is being generated and will be available shortly."
+              }
             </p>
           </div>
         )}

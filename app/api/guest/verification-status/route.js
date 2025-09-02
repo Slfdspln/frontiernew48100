@@ -47,8 +47,12 @@ export async function POST(req) {
         break;
       case 'approved':
         message = 'Identity verified successfully!';
-        // Generate Apple Wallet pass URL
-        walletUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/apple-wallet?passId=${passId}`;
+        // Check if wallet URL already exists in extended_data
+        walletUrl = guestPass.extended_data?.wallet_url;
+        if (!walletUrl) {
+          // Legacy fallback to direct Apple Wallet API
+          walletUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/apple-wallet?passId=${passId}`;
+        }
         break;
       case 'verification_failed':
         message = 'Identity verification failed. Please try again.';

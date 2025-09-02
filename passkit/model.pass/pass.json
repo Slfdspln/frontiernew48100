@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.com.frontiertower.guestpass",
+  "teamIdentifier": "3UP2HQ3A3J",
+  "organizationName": "Frontier Tower",
+  "serialNumber": "TEMPLATE-SHOULD-BE-OVERRIDDEN",
+  "description": "Frontier Tower Guest Pass",
+  "backgroundColor": "rgb(0,0,0)",
+  "foregroundColor": "rgb(255,255,255)",
+  "labelColor": "rgb(255,255,255)",
+  "generic": {
+    "primaryFields": [
+      { "key": "guest", "label": "GUEST", "value": "Guest Name" }
+    ],
+    "secondaryFields": [
+      { "key": "unit", "label": "UNIT", "value": "—" },
+      { "key": "expires", "label": "EXPIRES", "value": "—" }
+    ],
+    "auxiliaryFields": [
+      { "key": "host", "label": "HOST", "value": "—" }
+    ],
+    "backFields": [
+      { "key": "notes", "label": "Notes", "value": "Please show this pass at security." }
+    ]
+  },
+  "barcode": {
+    "format": "PKBarcodeFormatQR",
+    "message": "TO_BE_OVERRIDDEN",
+    "messageEncoding": "iso-8859-1",
+    "altText": "Frontier Tower Guest"
+  },
+  "relevantLocations": [
+    { "latitude": 37.7749, "longitude": -122.4194 }
+  ]
+}

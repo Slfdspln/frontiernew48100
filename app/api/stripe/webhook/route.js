@@ -3,6 +3,20 @@ import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { getSupa } from '@/utils/supabaseAdmin';
 
+async function generateWallet(passId, guestName, hostName, unit, expiresAt) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3007';
+  const resp = await fetch(`${baseUrl}/api/wallet/generate`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ passId, guestName, hostName, unit, expiresAt })
+  });
+  if (!resp.ok) {
+    const errorText = await resp.text();
+    throw new Error(`wallet/generate failed: ${errorText}`);
+  }
+  return resp.json();
+}
+
 // Initialize Stripe only when needed to avoid build errors
 let stripe;
 const getStripe = () => {
@@ -61,17 +75,32 @@ async function handleVerificationVerified(session, supa) {
 
   console.log('Identity verification verified for guest pass:', guest_pass_id);
 
+  // Get existing guest pass to preserve extended_data
+  const { data: existingPass } = await supa
+    .from('guest_passes')
+    .select('extended_data, guest_name, host_name, unit_number, expires_at')
+    .eq('id', guest_pass_id)
+    .single();
+
+  if (!existingPass) {
+    console.error('Guest pass not found:', guest_pass_id);
+    return;
+  }
+
   // Update guest pass status to approved
+  const updatedExtendedData = {
+    ...existingPass.extended_data,
+    verificationStatus: 'verified',
+    verificationId: session.id,
+    verifiedAt: new Date().toISOString(),
+    stripeMetadata: session.metadata
+  };
+
   const { data: guestPass, error } = await supa
     .from('guest_passes')
     .update({
       status: 'approved',
-      extended_data: {
-        ...session.metadata,
-        verificationStatus: 'verified',
-        verificationId: session.id,
-        verifiedAt: new Date().toISOString()
-      }
+      extended_data: updatedExtendedData
     })
     .eq('id', guest_pass_id)
     .select()
@@ -82,10 +111,21 @@ async function handleVerificationVerified(session, supa) {
     return;
   }
 
-  console.log('Guest pass approved and ready for Apple Wallet generation:', guest_pass_id);
+  console.log('Guest pass approved, generating Apple Wallet pass:', guest_pass_id);
 
-  // TODO: Trigger Apple Wallet pass generation
-  // This could be done here or via a separate API call from the frontend
+  // Generate Apple Wallet pass
+  try {
+    await generateWallet(
+      guest_pass_id, 
+      existingPass.guest_name || 'Guest',
+      existingPass.host_name,
+      existingPass.unit_number,
+      existingPass.expires_at
+    );
+    console.log('Apple Wallet pass generated successfully for:', guest_pass_id);
+  } catch (walletError) {
+    console.error('Failed to generate Apple Wallet pass:', walletError);
+  }
 }
 
 async function handleVerificationRequiresInput(session, supa) {
