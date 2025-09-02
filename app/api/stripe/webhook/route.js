@@ -167,3 +167,4 @@ async function handleVerificationCanceled(session, supa) {
 }
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';

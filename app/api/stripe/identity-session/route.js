@@ -15,7 +15,7 @@ export async function POST(req) {
     const session = await stripe.identity.verificationSessions.create({
       type: "document",
       return_url: `${process.env.NEXT_PUBLIC_APP_URL}/guest/verification-complete?session_id={VERIFICATION_SESSION_ID}&pass_id=${passId}`,
-      metadata: { passId }
+      metadata: { guest_pass_id: passId }
     });
 
     return NextResponse.json({ url: session.url });
