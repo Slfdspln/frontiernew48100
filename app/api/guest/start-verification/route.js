@@ -5,6 +5,7 @@ import { getSupa } from '@/utils/supabaseAdmin';
 import Stripe from 'stripe';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 export const revalidate = 0;
 
 // Initialize Stripe only when needed to avoid build errors
