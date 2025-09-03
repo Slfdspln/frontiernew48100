@@ -22,80 +22,87 @@ const getStripe = () => {
 
 const StartVerificationBody = z.object({
   token: z.string(),
-  firstName: z.string().min(1).max(50),
-  lastName: z.string().min(1).max(50),
-  phoneNumber: z.string().min(10).max(20),
+  firstName: z.string().min(1).max(50).optional(),
+  lastName: z.string().min(1).max(50).optional(),
+  phoneNumber: z.string().min(10).max(20).optional(),
   isDelivery: z.boolean().optional()
 });
 
+export async function GET() {
+  // Health check so you can test in browser
+  return NextResponse.json({ ok: true, route: "/api/guest/start-verification" });
+}
+
 export async function POST(req) {
   try {
-    const { token, firstName, lastName, phoneNumber, isDelivery } = StartVerificationBody.parse(await req.json());
-    
-    // Verify token
-    const { payload } = await jwtVerify(
-      token, 
-      new TextEncoder().encode(process.env.SESSION_SECRET),
-      {
-        issuer: 'frontiertowerguest.com',
-        audience: 'guest-verification'
-      }
-    );
+    // Accept token/passId in body OR query
+    const query = new URL(req.url).searchParams;
+    const fromQuery = {
+      passId: query.get("passId") || undefined,
+      token: query.get("token") || undefined,
+    };
+    const fromBody = await req.json().catch(() => ({}));
+    const passIdIn = fromBody.passId ?? fromQuery.passId;
+    const tokenIn = fromBody.token ?? fromQuery.token;
 
-    const { passId, hostId, nonce } = payload;
+    let passId = passIdIn ?? null;
+
+    // If only token was provided, resolve to passId
+    if (!passId && tokenIn) {
+      // Try JWT verification first
+      try {
+        const { payload } = await jwtVerify(
+          tokenIn, 
+          new TextEncoder().encode(process.env.SESSION_SECRET),
+          {
+            issuer: 'frontiertowerguest.com',
+            audience: 'guest-verification'
+          }
+        );
+        passId = payload.passId;
+      } catch (jwtError) {
+        // If JWT fails, look up in database
+        console.log('JWT verification failed, looking up in database:', jwtError.message);
+        const supa = getSupa();
+        const { data, error } = await supa
+          .from("guest_passes")
+          .select("id")
+          .or(`id.eq.${tokenIn}`)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Database lookup error:', error);
+          return NextResponse.json({ 
+            error: "Database lookup failed", 
+            debug: { tokenIn, passIdIn, fromQuery, fromBody, dbError: error.message } 
+          }, { status: 400 });
+        }
+        if (!data) {
+          return NextResponse.json({ 
+            error: "Invalid or expired link", 
+            debug: { tokenIn, passIdIn, fromQuery, fromBody } 
+          }, { status: 400 });
+        }
+        passId = data.id;
+      }
+    }
+
+    if (!passId) {
+      // Surface what we received for debugging
+      return NextResponse.json({
+        error: "passId or token required",
+        debug: { passIdIn, tokenIn, fromQuery, fromBody }
+      }, { status: 400 });
+    }
 
     const supa = getSupa();
 
-    // Get the existing guest pass and validate nonce
-    const { data: existingPass } = await supa
-      .from('guest_passes')
-      .select('extended_data, status')
-      .eq('id', passId)
-      .single();
-
-    if (!existingPass) {
-      return NextResponse.json({ ok: false, error: 'Guest pass not found' }, { status: 404 });
-    }
-
-    // Validate the token nonce to prevent reuse
-    if (nonce && existingPass.extended_data?.tokenNonce !== nonce) {
-      return NextResponse.json({ ok: false, error: 'Invalid or already used verification link' }, { status: 400 });
-    }
-
-    // Check if already processed
-    if (existingPass.status === 'checked_in') {
-      return NextResponse.json({ ok: false, error: 'This guest has already been processed' }, { status: 400 });
-    }
-
-    // Update guest pass with confirmed details
-    const updatedExtendedData = {
-      ...existingPass.extended_data,
-      confirmedFirstName: firstName,
-      confirmedLastName: lastName,
-      confirmedPhoneNumber: phoneNumber,
-      isDelivery: isDelivery || false,
-      verificationStartedAt: new Date().toISOString()
-    };
-
-    await supa
-      .from('guest_passes')
-      .update({
-        extended_data: updatedExtendedData,
-        guest_name: `${firstName} ${lastName}`,
-        status: 'scheduled'
-      })
-      .eq('id', passId);
-
-    // Create Stripe Identity verification session
+    // Create Stripe Identity verification session  
     const stripeInstance = getStripe();
     const verificationSession = await stripeInstance.identity.verificationSessions.create({
       type: 'document',
       metadata: {
-        guest_pass_id: passId,
-        host_id: hostId,
-        guest_name: `${firstName} ${lastName}`,
-        guest_phone: phoneNumber,
-        is_delivery: isDelivery ? 'true' : 'false'
+        guest_pass_id: passId
       },
       options: {
         document: {

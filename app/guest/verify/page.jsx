@@ -79,13 +79,13 @@ function GuestVerifyContent() {
 
       const result = await response.json();
       console.log('Verification API response:', result);
+      console.log('Response status:', response.status);
+      console.log('Sent data:', { token, ...guestData });
       
-      if (result.ok && result.verification_url) {
+      if (response.ok && result.verification_url) {
         setMsg('Redirecting to ID verification...');
-        // Redirect to Stripe Identity verification
-        setTimeout(() => {
-          window.location.href = result.verification_url;
-        }, 1500);
+        // Redirect to Stripe Identity verification immediately
+        window.location.href = result.verification_url;
       } else {
         console.error('Verification failed:', result);
         setMsg(result.error || 'Failed to start verification');
